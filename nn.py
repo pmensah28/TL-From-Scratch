@@ -1,7 +1,6 @@
 import numpy as np
 
-
-class MnistNNClassifier:
+class ModifiedNeuralNetwork:
     def __init__(self, input_layer, hidden_layer, output_layer, learning_rate):
         self.input_layer = input_layer
         self.hidden_layer = hidden_layer
@@ -11,42 +10,65 @@ class MnistNNClassifier:
 
     def init_params(self):
         W1 = np.random.randn(self.hidden_layer, self.input_layer) * np.sqrt(2 / (self.input_layer + self.hidden_layer))
-        W2 = np.random.randn(self.output_layer, self.hidden_layer) * np.sqrt(
-            2 / (self.hidden_layer + self.output_layer))
+        W2 = np.random.randn(self.output_layer, self.hidden_layer) * np.sqrt(2 / (self.hidden_layer + self.output_layer))
         b1 = np.zeros((self.hidden_layer, 1))
         b2 = np.zeros((self.output_layer, 1))
         return W1, W2, b1, b2
 
     def relu(self, z):
-        return np.maximum(0, z)
+        return np.maximum(0, z, axis=0, keepdims=True)
 
     def d_relu(self, z):
         return (z > 0).astype(float)
 
-    def softmax(self, z):
-        expZ = np.exp(z - np.max(z))
-        return expZ / expZ.sum(axis=0, keepdims=True)
-    #
+    # def softmax(self, z):
+    #     expZ = np.exp(z - np.max(z))
+    #     return expZ / expZ.sum(axis=0, keepdims=True)
+
+    # def softmax(self, z):
+    #     z_shifted = z - np.max(z, axis=0, keepdims=True)
+    #     expZ = np.exp(z_shifted)
+    #     return expZ / expZ.sum(axis=0, keepdims=True)
+
+    def softmax(logits: np.ndarray):
+        def log_sum_exp(logits):
+            c = np.max(logits, -1, keepdims=True)
+            y = c + np.log(np.sum(np.exp(logits - c), -1, keepdims=True))
+            return y
+
+        return np.exp(logits - log_sum_exp(logits))
+
+
     # def cross_entropy_loss(self, Y, A2):
     #     m = Y.shape[1]
-    #     epsilon = 1e-7  # Small value to prevent log(0)
-    #     log_probs = -np.log(A2 + epsilon)
+    #     log_probs = -np.log(A2[range(m), Y.argmax(axis=0)])
+    #     loss = np.sum(log_probs) / m
+    #     return loss
+
+    # def cross_entropy_loss(self, Y, A2):
+    #     m = Y.shape[1]
+    #     epsilon = 1e-7
+    #     log_probs = -np.log(A2.T + epsilon)
     #     loss = np.sum(Y * log_probs) / m
     #     return loss
 
     def cross_entropy_loss(self, Y, A2):
-        m = Y.shape[0]  # Number of examples
-        epsilon = 1e-7  # Small value to prevent log(0)
-        A2 = A2.T  # Transpose A2 to match Y's shape
+        m = Y.shape[0]
+        epsilon = 1e-7
+        A2 = A2.T
         log_probs = -np.log(A2 + epsilon)
         loss = np.sum(Y * log_probs) / m
         return loss
+
+
 
     def forward_pass(self, X):
         Z1 = np.dot(self.W1, X.T) + self.b1
         A1 = self.relu(Z1)
         Z2 = np.dot(self.W2, A1) + self.b2
         A2 = self.softmax(Z2)
+        # print("W1 shape:", self.W1.shape)
+        # print("X shape:", X.shape)
 
         return A2, Z2, A1, Z1
 
@@ -63,10 +85,12 @@ class MnistNNClassifier:
 
         return dW1, dW2, db1, db2
 
-    def update_params(self, dW1, dW2, db1, db2):
-        self.W1 -= self.learning_rate * dW1
+    def update_params(self, dW1, dW2, db1, db2, freeze_layer = False):
+        if freeze_layer == False:
+          self.W1 -= self.learning_rate * dW1
+          self.b1 -= self.learning_rate * db1
+
         self.W2 -= self.learning_rate * dW2
-        self.b1 -= self.learning_rate * db1
         self.b2 -= self.learning_rate * db2
 
     def predict(self, X):
@@ -74,16 +98,17 @@ class MnistNNClassifier:
         return np.argmax(A2, axis=0)
 
     def accuracy(self, Y, Y_pred):
-        return np.mean(Y.argmax(axis=0) == Y_pred)
+        return np.mean(Y.argmax(axis=0) == Y_pred) * 100
 
-    def fit(self, X_train, Y_train, X_test, Y_test, n_epochs):
+
+    def fit(self, X_train, Y_train, X_test, Y_test, n_epochs, freeze_layer = False):
         self.train_loss, self.test_loss = [], []
         for i in range(n_epochs):
             A2, Z2, A1, Z1 = self.forward_pass(X_train)
             dW1, dW2, db1, db2 = self.backward_pass(X_train, Y_train, A2, Z2, A1, Z1)
-            self.update_params(dW1, dW2, db1, db2)
+            self.update_params(dW1, dW2, db1, db2, freeze_layer)
             self.train_loss.append(self.cross_entropy_loss(Y_train, A2))
             A2_test, _, _, _ = self.forward_pass(X_test)
             self.test_loss.append(self.cross_entropy_loss(Y_test, A2_test))
-            if i % 10 == 0:  # Print loss every 10 epochs
-                print(f"Epoch {i}, Train Loss: {self.train_loss[-1]}, Test Loss: {self.test_loss[-1]}")
+            if i % 1 == 0:  # Print loss every 10 epochs
+                print(f"Epoch {i+1}, Train Loss: {self.train_loss[-1]}, Test Loss: {self.test_loss[-1]}")
