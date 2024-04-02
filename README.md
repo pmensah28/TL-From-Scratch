@@ -1,35 +1,6 @@
-# TL-From-Scratch
-In this project (transfer learning), we built the NN - classifier from scratch and trained it on the MNIST dataset.
 
-## Building NN - classifier using pytorch and trained it on the MNIST dataset.
-### Installation
+# Transfer Learning from Scratch
 
-1. Clone the repository to your local machine:
+This repository contains the implementation of a basic neural network model to demonstrate transfer learning from scratch, using the MNIST dataset. The project is structured to first train a model on odd numbers (1, 3, 5, 7, 9) and then apply transfer learning techniques to adapt the model to recognize even numbers (0, 2, 4, 6, 8).
 
-    ```bash
-    git clone https://github.com/pmensah28/TL-From-Scratch.git
-    ```
-
-2. Navigate to the repository directory:
-
-    ```bash
-    cd Basics_ML_Algo
-    ```
-
-3. Create virtual environnement
-    ```bash
-    python3 -m venv my_env
-    source my_env/bin/activate
-    ```
-4. Install the required dependencies:
-
-    ```bash
-    pip install -r requirement.txt
-    ```
-
-### Usage
-#### Main Script
-The main.py script provides an interface to generate data and test the implemented algorithms. You can use it as follows:
-```
-python main.py
-```
+## Project Overview
