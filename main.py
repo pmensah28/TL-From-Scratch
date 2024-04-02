@@ -2,7 +2,7 @@ from tensorflow.keras.datasets import mnist
 import matplotlib.pyplot as plt
 from tensorflow.keras.utils import to_categorical
 import numpy as np
-from nn import ModifiedNeuralNetwork
+from mnist_nn import ModifiedNeuralNetwork
 
 # from keras.utils import np_utils
 
