@@ -24,7 +24,7 @@ pip install numpy tensorflow
 ```
 
 
-To train the model and apply transfer learning, follow theses steps to run the program:
+To train the model and apply transfer learning, follow theses steps:
 
     $ https://github.com/pmensah28/TL-From-Scratch.git
     $ cd Basic-ML-Algorithms
