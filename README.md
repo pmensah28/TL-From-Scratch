@@ -1,3 +1,4 @@
+
 # Transfer Learning from Scratch
 
 This repository contains the implementation of a basic neural network model to demonstrate transfer learning using the mnist dataset with 3 different approach: from scratch, using pytorch, a softmax regression. 
@@ -30,4 +31,3 @@ To train the model and apply transfer learning, follow theses steps:
     $ cd Basic-ML-Algorithms
     $ python3 main.py
     $ python3 pytorch_main.py
-
