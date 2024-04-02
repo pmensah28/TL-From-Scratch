@@ -2,9 +2,7 @@ from tensorflow.keras.datasets import mnist
 import matplotlib.pyplot as plt
 from tensorflow.keras.utils import to_categorical
 import numpy as np
-from mnist_nn import ModifiedNeuralNetwork
-
-# from keras.utils import np_utils
+from mnist_nn import NeuralNetwork
 
 # Load MNIST dataset
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
@@ -43,7 +41,7 @@ Y_train_even_one_hot = to_categorical(Y_train_even, no_classes)
 Y_test_even_one_hot = to_categorical(Y_test_even, no_classes)
 
 # Implementation for odd Mnist
-nn_odd = ModifiedNeuralNetwork(input_layer=784, hidden_layer=500, output_layer=10, learning_rate=0.0001)
+nn_odd = NeuralNetwork(input_layer=784, hidden_layer=500, output_layer=10, learning_rate=0.0001)
 
 n_epochs = 200
 print("Training for Mnist_odd starts")
@@ -69,7 +67,7 @@ print("Accuracy (TL_Mnist-Odd):", TL_even_accuracy)
 print(" ")
 
 # Implementation for even Mnist
-nn_even = ModifiedNeuralNetwork(input_layer=784, hidden_layer=500, output_layer=10, learning_rate=0.0001)
+nn_even = NeuralNetwork(input_layer=784, hidden_layer=500, output_layer=10, learning_rate=0.0001)
 
 n_epochs = 200
 print("Training for Mnist_even starts")

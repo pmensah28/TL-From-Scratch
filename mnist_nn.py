@@ -1,6 +1,6 @@
 import numpy as np
 
-class ModifiedNeuralNetwork:
+class NeuralNetwork:
     def __init__(self, input_layer, hidden_layer, output_layer, learning_rate):
         self.input_layer = input_layer
         self.hidden_layer = hidden_layer
@@ -21,21 +21,9 @@ class ModifiedNeuralNetwork:
     def d_relu(self, z):
         return (z > 0).astype(float)
 
-    # def softmax(logits: np.ndarray):
-    #     def log_sum_exp(logits):
-    #         c = np.max(logits, -1, keepdims=True)
-    #         y = c + np.log(np.sum(np.exp(logits - c), -1, keepdims=True))
-    #         return y
-    #
-    #     return np.exp(logits - log_sum_exp(logits))
-
     def softmax(self, Z):
         expZ = np.exp(Z - np.max(Z))
         return expZ / expZ.sum(axis=0, keepdims=True)
-
-    # def softmax_derivative(softmax_output: np.ndarray):
-    #     s = softmax_output.reshape(-1, 1)
-    #     return np.diagflat(s) - np.dot(s, s.T)
 
     def cross_entropy_loss(self, Y, A2):
         m = Y.shape[0]
@@ -51,19 +39,6 @@ class ModifiedNeuralNetwork:
         A2 = self.softmax(Z2)
 
         return A2, Z2, A1, Z1
-
-    # def backward_pass(self, X, Y, A2, Z2, A1, Z1):
-    #     m = Y.shape[1]
-    #
-    #     dZ2 = A2 - Y.T
-    #     dW2 = (1 / m) * np.dot(dZ2, A1.T)
-    #     db2 = (1 / m) * np.sum(dZ2, axis=1, keepdims=True)
-    #
-    #     dZ1 = np.dot(self.W2.T, dZ2) * self.d_relu(Z1)
-    #     dW1 = (1 / m) * np.dot(dZ1, X)
-    #     db1 = (1 / m) * np.sum(dZ1, axis=1, keepdims=True)
-    #
-    #     return dW1, dW2, db1, db2
 
     def backward_pass(self, X, Y, A2, Z2, A1, Z1):
         m = Y.shape[1]
@@ -86,26 +61,10 @@ class ModifiedNeuralNetwork:
         self.W2 -= self.learning_rate * dW2
         self.b2 -= self.learning_rate * db2
 
-    # def predict(self, X):
-    #     A2, _, _, _ = self.forward_pass(X)
-    #     return np.argmax(A2, axis=0)
-
-    # def predict(self, X):
-    #     A,_,_,_ = self.forward_pass(X)
-    #     y_pred = np.argmax(A, axis=1)
-    #     return y_pred
-
     def predict(self, X):
         A2, _, _, _ = self.forward_pass(X)
         predictions = np.argmax(A2, axis=0)  # Make sure axis aligns with how A2 is structured
         return predictions
-
-        # Y = np.argmax(Y, axis=1)
-        # accuracy = np.mean((y_hat == Y))
-        # return accuracy * 100
-    # def accuracy(self, Y, Y_pred):
-    #     Y = np.argmax(Y, axis=0)
-    #     return np.mean(Y == Y_pred) * 100
 
     def accuracy(self, Y, Y_pred):
         # Convert one-hot encoded Y to class labels if it's one-hot encoded
