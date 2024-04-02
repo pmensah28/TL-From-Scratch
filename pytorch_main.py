@@ -1,21 +1,16 @@
-### Import
+# Importation
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torchvision.datasets as datasets
 from torch.utils.data import DataLoader, Subset
 from torchvision.transforms import ToTensor
 import torch.optim as optim
-from sklearn.metrics import confusion_matrix
-import seaborn as sns
-import matplotlib.pyplot as plt
+from nn_using_pytorch import Softmax_reg
 from nn_using_pytorch import Mnist
 
-### Gets the GPU if there is one, otherwise the cpu"""
+# Gets the GPU if there is one, otherwise the cpu"""
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device)
 
-## Data Splitting"""
+"""Data Splitting"""
 mnist_trainset = datasets.MNIST(root='data', train=True, download=True, transform=ToTensor())
 mnist_testset = datasets.MNIST(root='data', train=False, download=True, transform=ToTensor())
 
@@ -35,95 +30,113 @@ trainloader_even = DataLoader(trainset_even, batch_size=64, shuffle=True)
 testset_even = Subset(mnist_testset, test_even)
 testloader_even = DataLoader(testset_even, batch_size=64, shuffle=True)
 
-#Creating 1-nn model to train even dataset 
-model_even = Mnist()
-model_even.to(device)
-model_even.fit(trainloader_even) #Training on even dataset
+
+'''Task1: Tain both dataset using SoftMax Regression '''
+
+ # Creating, training and testing SoftMax Regression model to train even dataset
+model_softmax_reg_even = Softmax_reg()
+model_softmax_reg_even.to(device)
+
+#Training on even dataset
+model_softmax_reg_even.fit(trainloader_even,testloader_even) 
 
 #Ploting the losses
-plt.figure(figsize=(5, 3))
-plt.plot(model_even.losses, label='Training Loss')
-plt.title('Loss over Epochs')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
+model_softmax_reg_even.plot_losses("even")
+
+# Testing step
+model_softmax_reg_even.test(testloader_even)
+
+#Ploting confusion matrix
+model_softmax_reg_even.plot_confusion_matrix(testloader_even,"even")
+
+#Creating, training and testing SoftMax Regression model to train odd dataset
+model_softmax_reg_odd = Softmax_reg()
+model_softmax_reg_odd.to(device)
+
+#Training on odd dataset
+model_softmax_reg_odd.fit(trainloader_odd,testloader_odd) 
+
+#Ploting the losses
+model_softmax_reg_odd.plot_losses("odd")
+
+# Testing step
+model_softmax_reg_odd.test(testloader_odd)
+
+#Ploting confusion matrix
+model_softmax_reg_odd.plot_confusion_matrix(testloader_odd,"odd")
+
+
+'''Task2: Tain both dataset using 1-NN (! hidden layer Neural Network)'''
+
+#Creating, training and testing 1-nn model to train even dataset 
+model_even = Mnist()
+model_even.to(device)
+
+#Training on even dataset
+model_even.fit(trainloader_even, testloader_even) #Training on even dataset
+
+#Ploting the losses
+model_even.plot_losses("even")
 
 # Testing step
 model_even.test(testloader_even)
 
 #Ploting confusion matrix
-model_even.plot_confusion_matrix(testloader_even)
+model_even.plot_confusion_matrix(testloader_even,"even")
 
 
-#Creating 1-nn model to train odd dataset 
+#Creating, training and testing 1-nn model to train odd dataset 
 model_odd = Mnist().to(device)
-model_odd.fit(trainloader_odd) 
+
+#Training on odd dataset
+model_odd.fit(trainloader_odd,testloader_odd) 
 
 #Ploting losses
-plt.figure(figsize=(5, 3))
-plt.plot(model_odd.losses, label='Training Loss')
-plt.title('Loss over Epochs')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
+model_odd.plot_losses('odd')
 
 # Testing step
 model_odd.test(testloader_odd)
 
 #Ploting confusion matrix
-model_odd.plot_confusion_matrix(testloader_odd)
+model_odd.plot_confusion_matrix(testloader_odd,'odd')
 
 
+'''Task3: Tain both dataset using Transfert Learning'''
 
-#Transfert Learning
-
-#Freezing weigth and bias of hidden layer in odd model and train even dataset
+#Freezing weigth and bias of hidden layer in odd model and used it to train even dataset
 for param in model_odd.fc1.parameters():
   param.requires_grad = False
 model_odd.optimizer = optim.Adam(model_odd.parameters(), lr=.001)
 model_odd.epochs = 30
 
 #Training on even dataset using odd model
-model_odd.fit(trainloader_even)
+model_odd.fit(trainloader_even,testloader_even)
 
 #Plotting losses step
-plt.figure(figsize=(5, 3))
-plt.plot(model_odd.losses, label='Training Loss')
-plt.title('Loss over Epochs')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
+model_odd.plot_losses('odd_even')
 
 #Testing step
 model_odd.test(testloader_even)
 
 #Ploting confusion matrix
-model_odd.plot_confusion_matrix(testloader_even)
+model_odd.plot_confusion_matrix(testloader_even,'odd_even')
 
-#Freezing weigth and bias of hidden layer in even model and train odd dataset
+
+#Freezing weigth and bias of hidden layer in even model and used it to train odd dataset
 for param in model_even.fc1.parameters():
   param.requires_grad = False
 model_even.optimizer = optim.Adam(model_even.parameters(), lr=.001)
 model_even.epochs = 30
 
 #Training on odd dataset using even model
-model_even.fit(trainloader_odd)
+model_even.fit(trainloader_odd, testloader_odd)
 
 #Ploting losses step
-plt.figure(figsize=(5, 3))
-plt.plot(model_even.losses, label='Training Loss')
-plt.title('Loss over Epochs')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
+model_even.plot_losses("even_odd")
 
 #Testing step
 model_even.test(testloader_odd)
 
 #Plotting confusion matrix
-model_even.plot_confusion_matrix(testloader_odd)
+model_even.plot_confusion_matrix(testloader_odd,"even_odd")
 
