@@ -21,7 +21,7 @@ To run this project, you will need Python 3 and the following Python libraries i
 You can install the requirements with the following command:
 
 ```bash
-pip install numpy tensorflow
+pip install -r requirement.txt
 ```
 
 
